@@ -17,11 +17,12 @@ const handleTransaction: HandleTransaction = async (
   txEvent: TransactionEvent
 ) => {
   const findings: Finding[] = [];
-  
+  console.log(txEvent);
   // limiting this agent to emit only 5 findings so that the alert feed is not spammed
   if (findingsCount >= 5) return findings;
-  if(txEvent.from.toLowerCase() !== DEPLOYER_ADDRESS)
+  if(txEvent.from.toLowerCase() !== DEPLOYER_ADDRESS.toLowerCase())
     return findings;
+  console.log("hereeeeeeeeeeeeee");
   // filter the transaction logs for CreateAgent function call
   const deployEvents = txEvent.filterFunction(
     [FUNCTION_NAME],
@@ -29,7 +30,7 @@ const handleTransaction: HandleTransaction = async (
   );
   console.log(deployEvents);
   deployEvents.forEach((deployEvent) => {
-    
+    // console.log(deployEvent.args.agentId);
     // console.log(deployEvent.args);
       findings.push(
         Finding.fromObject({
@@ -39,9 +40,7 @@ const handleTransaction: HandleTransaction = async (
           severity: FindingSeverity.Low,
           type: FindingType.Info,
           metadata: {
-            "name":deployEvent.functionFragment.name,
-            "signature":deployEvent.signature,
-            "sigHash" : deployEvent.sighash,
+            "agentId":deployEvent.args.agentId.toString(),
             
           },
         })
